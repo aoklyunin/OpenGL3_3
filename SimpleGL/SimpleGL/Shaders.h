@@ -1,16 +1,10 @@
 #pragma once
 
 /********************************
-
-Class:	CShader
-
-Purpose:	Wraps OpenGL shader loading
-			and compiling.
-
+ ласс:	CShader
+÷ель:	загрузка OpenGL шейдеров и их компил€ци€
 ********************************/
-
-class CShader
-{
+class CShader{
 public:
 	bool LoadShader(string sFile, int a_iType);
 	void DeleteShader();
@@ -19,38 +13,25 @@ public:
 	UINT GetShaderID();
 
 	CShader();
-
 private:
-	UINT uiShader; // ID of shader
-	int iType; // GL_VERTEX_SHADER, GL_FRAGMENT_SHADER...
-	bool bLoaded; // Whether shader was loaded and compiled
+	UINT uiShader; // ID  шейдера
+	int iType;     // GL_VERTEX_SHADER, GL_FRAGMENT_SHADER...
+	bool bLoaded;  // если шейдер был загружен и скомпилирован
 };
-
 /********************************
-
-Class:	CShaderProgram
-
-Purpose: Wraps OpenGL shader program
-		and make its usage easy.
-
+ ласс:	CShaderProgram
+Purpose: OpenGL программа шейдеров
 ********************************/
-
-class CShaderProgram
-{
+class CShaderProgram{
 public:
 	void CreateProgram();
 	void DeleteProgram();
-
 	bool AddShaderToProgram(CShader* shShader);
 	bool LinkProgram();
-
 	void UseProgram();
-
 	UINT GetProgramID();
-
 	CShaderProgram();
-
 private:
-	UINT uiProgram; // ID of program
-	bool bLinked; // Whether program was linked and is ready to use
+	UINT uiProgram; // ID программы
+	bool bLinked;   // —линкована ли программа и готова ли к запуску
 };

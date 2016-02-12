@@ -2,29 +2,20 @@
 
 #include "shaders.h"
 
-CShader::CShader()
-{
+// конструктор
+CShader::CShader(){
 	bLoaded = false;
 }
-
 /*-----------------------------------------------
-
-Name:	loadShader
-
-Params:	sFile - path to a file
-		a_iType - type of shader (fragment, vertex, geometry)
-
-Result:	Loads and compiles shader.
-
+Имя:	loadShader
+Параметры:	sFile - путь к файлу
+			a_iType - тип шейдера (фрагмент, точка, геометрия)
+Результат:	Загружает и компилирует шейдеры
 /*---------------------------------------------*/
-
-bool CShader::LoadShader(string sFile, int a_iType)
-{
+bool CShader::LoadShader(string sFile, int a_iType){
 	FILE* fp = fopen(sFile.c_str(), "rt");
 	if(!fp)return false;
-
-	// Get all lines from a file
-
+	// ПОлучаем строки из файла
 	vector<string> sLines;
 	char sLine[255];
 	while(fgets(sLine, 255, fp))sLines.push_back(sLine);
@@ -49,135 +40,76 @@ bool CShader::LoadShader(string sFile, int a_iType)
 
 	return 1;
 }
-
 /*-----------------------------------------------
-
-Name:	IsLoaded
-
-Params:	none
-
-Result:	True if shader was loaded and compiled.
-
+Имя:	IsLoaded
+Результат:	True если шейдер загружен
 /*---------------------------------------------*/
-
-bool CShader::IsLoaded()
-{
+bool CShader::IsLoaded(){
 	return bLoaded;
 }
-
 /*-----------------------------------------------
-
-Name:	GetShaderID
-
-Params:	none
-
-Result:	Returns ID of a generated shader.
-
+Имя:	GetShaderID
+Результат:	Возвращает ID созданного шейдера
 /*---------------------------------------------*/
-
-UINT CShader::GetShaderID()
-{
+UINT CShader::GetShaderID(){
 	return uiShader;
 }
-
 /*-----------------------------------------------
-
-Name:	DeleteShader
-
-Params:	none
-
-Result:	Deletes shader and frees memory in GPU.
-
+Имя:	DeleteShader
+Результат:	Удаляет шейдер и очищает память GPU.
 /*---------------------------------------------*/
-
-void CShader::DeleteShader()
-{
+void CShader::DeleteShader(){
 	if(!IsLoaded())return;
 	bLoaded = false;
 	glDeleteShader(uiShader);
 }
-
-CShaderProgram::CShaderProgram()
-{
+// конструктор программы шейдера
+CShaderProgram::CShaderProgram(){
 	bLinked = false;
 }
-
 /*-----------------------------------------------
-
-Name:	CreateProgram
-
-Params:	none
-
-Result:	Creates a new program.
-
+Имя:	CreateProgram
+Результат:	Создаёт программу
 /*---------------------------------------------*/
-
-void CShaderProgram::CreateProgram()
-{
+void CShaderProgram::CreateProgram(){
 	uiProgram = glCreateProgram();
 }
-
 /*-----------------------------------------------
-
-Name:	AddShaderToProgram
-
-Params:	sShader - shader to add
-
-Result:	Adds a shader (like source file) to
-		a program, but only compiled one.
-
+Имя:	AddShaderToProgram
+Параметры:	sShader - Шейдер на добавление
+Результат:	Добавляется к программе скомпилированный шейдер
 /*---------------------------------------------*/
-
-bool CShaderProgram::AddShaderToProgram(CShader* shShader)
-{
+bool CShaderProgram::AddShaderToProgram(CShader* shShader){
 	if(!shShader->IsLoaded())return false;
 
 	glAttachShader(uiProgram, shShader->GetShaderID());
 
 	return true;
 }
-
 /*-----------------------------------------------
-
-Name:	LinkProgram
-
-Params:	none
-
-Result:	Performs final linkage of OpenGL program.
-
+Имя:	LinkProgram
+Результат:	Осуществляет линковку OpenGL программы.
 /*---------------------------------------------*/
-
-bool CShaderProgram::LinkProgram()
-{
+bool CShaderProgram::LinkProgram(){
 	glLinkProgram(uiProgram);
 	int iLinkStatus;
 	glGetProgramiv(uiProgram, GL_LINK_STATUS, &iLinkStatus);
 	bLinked = iLinkStatus == GL_TRUE;
 	return bLinked;
 }
-
 /*-----------------------------------------------
-
-Name:	DeleteProgram
-
-Params:	none
-
-Result:	Deletes program and frees memory on GPU.
-
+Имя:	DeleteProgram
+Результат:	Удаляет программу и освободдает память GPU
 /*---------------------------------------------*/
-
-void CShaderProgram::DeleteProgram()
-{
+void CShaderProgram::DeleteProgram(){
 	if(!bLinked)return;
 	bLinked = false;
 	glDeleteProgram(uiProgram);
 }
 /*-----------------------------------------------
-Name:	UseProgram
-Params:	none
-Result:	Tells OpenGL to use this program.
+Имя:	UseProgram
+Результат:	Говорит OpenGL использовать эту программу
 /*---------------------------------------------*/
-void CShaderProgram::UseProgram()
-{
+void CShaderProgram::UseProgram(){
 	if(bLinked)glUseProgram(uiProgram);
 }
