@@ -1,4 +1,4 @@
-// Header files of frequent usage
+// Заголовки, необходимые для работы 
 
 #include <windows.h>
 
@@ -15,8 +15,7 @@ using namespace std;
 
 #include <gl/glew.h>
 
-// Some useful defines
-
+// Полезные переопределения
 #define FOR(q,n) for(int q=0;q<n;q++)
 #define SFOR(q,s,e) for(int q=s;q<=e;q++)
 #define RFOR(q,n) for(int q=n;q>=0;q--)

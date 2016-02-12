@@ -172,17 +172,11 @@ void CShaderProgram::DeleteProgram()
 	bLinked = false;
 	glDeleteProgram(uiProgram);
 }
-
 /*-----------------------------------------------
-
 Name:	UseProgram
-
 Params:	none
-
 Result:	Tells OpenGL to use this program.
-
 /*---------------------------------------------*/
-
 void CShaderProgram::UseProgram()
 {
 	if(bLinked)glUseProgram(uiProgram);

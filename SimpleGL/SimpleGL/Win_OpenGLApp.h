@@ -2,11 +2,12 @@
 
 #include "openGLControl.h"
 
+// класс приложени€
 class COpenGLWinApp
 {
 public:
-	HWND hWnd; // Handle to application window
-	COpenGLControl oglControl; // OpenGL Control
+	HWND hWnd; // экземпл€р окна
+	COpenGLControl oglControl; // класс OpenGL контролл€
 
 	void ResetTimer();
 	void UpdateTimer();
@@ -24,11 +25,11 @@ public:
 	LRESULT CALLBACK MsgHandlerMain(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam);
 
 private:
-	HINSTANCE hInstance; // Application's instance
+	HINSTANCE hInstance; // Ёкземпл€р приложени€
 	string sAppName;
 	HANDLE hMutex;
 
-	bool bAppActive; // To check if application is active (not minimized)
+	bool bAppActive; // ƒл€ праверки, активно ли приложение
 	DWORD dwLastFrame;
 	float fFrameInterval;
 };

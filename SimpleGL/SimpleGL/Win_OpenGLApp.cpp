@@ -2,132 +2,79 @@
 
 #include "win_OpenGLApp.h"
 
+// переменная приложения OpenGl
 COpenGLWinApp appMain;
-
+// кнопки клавиатуры
 char Keys::kp[256] = {0};
 
 /*-----------------------------------------------
-
-Name:	Key
-
-Params:	iKey - virtual key code
-
-Result:	Return true if key is pressed.
-
+Имя:	Key
+Параметры:	iKey - виртуальный код клавиши
+Результат:	Возвращает true, если кнопка нажата
 /*---------------------------------------------*/
-
-int Keys::Key(int iKey)
-{
+int Keys::Key(int iKey){
 	return (GetAsyncKeyState(iKey)>>15)&1;
 }
-
 /*-----------------------------------------------
-
-Name:	Onekey
-
-Params:	iKey - virtual key code
-
-Result:	Return true if key was pressed, but only
-		once (the key must be released).
-
+Имя:	Onekey
+Параметры:	iKey - виртуальный код клавиши
+Результат:	Возвращает true, если кнопка нажата впервый раз
 /*---------------------------------------------*/
-
-int Keys::Onekey(int iKey)
-{
+int Keys::Onekey(int iKey){
 	if(Key(iKey) && !kp[iKey]){kp[iKey] = 1; return 1;}
 	if(!Key(iKey))kp[iKey] = 0;
 	return 0;
 }
-
 /*-----------------------------------------------
-
-Name:	ResetTimer
-
-Params:	none
-
-Result:	Resets application timer (for example
-		after re-activation of application).
-
+Имя:	Сброс таймера
+Результат:	Сбрасывает таймер приложения
 /*---------------------------------------------*/
-
-void COpenGLWinApp::ResetTimer()
-{
+void COpenGLWinApp::ResetTimer(){
 	dwLastFrame = GetTickCount();
 	fFrameInterval = 0.0f;
 }
-
 /*-----------------------------------------------
-
-Name:	UpdateTimer
-
-Params:	none
-
-Result:	Updates application timer.
-
+Имя:	UpdateTimer
+Параметры:	none
+Результат:	обновление таймера
 /*---------------------------------------------*/
-
-void COpenGLWinApp::UpdateTimer()
-{
+void COpenGLWinApp::UpdateTimer(){
 	DWORD dwCur = GetTickCount();
 	fFrameInterval = float(dwCur-dwLastFrame)*0.001f;
 	dwLastFrame = dwCur;
 }
-
 /*-----------------------------------------------
-
-Name:	sof
-
-Params:	fVal
-
-Result:	Stands for speed optimized float.
-
+Имя:	sof
+Параметры:	fVal - значение
+Результат:	Масштабирует значение под скорость
 /*---------------------------------------------*/
-
-float COpenGLWinApp::sof(float fVal)
-{
+float COpenGLWinApp::sof(float fVal){
 	return fVal*fFrameInterval;
 }
-
 /*-----------------------------------------------
-
-Name:	InitializeApp
-
-Params:	a_sAppName
-
-Result:	Initializes app with specified (unique)
-		application identifier.
-
+Имя:	InitializeApp
+Параметры:	a_sAppName - имя приложения
+Результат:	Инициализация приложения
 /*---------------------------------------------*/
-
-bool COpenGLWinApp::InitializeApp(string a_sAppName)
-{
+bool COpenGLWinApp::InitializeApp(string a_sAppName){
 	sAppName = a_sAppName;
 	hMutex = CreateMutex(NULL, 1, sAppName.c_str());
-	if(GetLastError() == ERROR_ALREADY_EXISTS)
-	{
+	if(GetLastError() == ERROR_ALREADY_EXISTS){
 		MessageBox(NULL, "This application already runs!", "Multiple Instances Found.", MB_ICONINFORMATION | MB_OK);
 		return 0;
 	}
 	return 1;
 }
-
 /*-----------------------------------------------
-
-Name:	RegisterAppClass
-
-Params:	a_hInstance - application instance handle
-
-Result:	Registers application window class.
-
+Имя:	RegisterAppClass
+Параметры:	a_hInstance - экземпляр приложения
+Результат:	Регистрирует класс приложения window
 /*---------------------------------------------*/
-
-LRESULT CALLBACK GlobalMessageHandler(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK GlobalMessageHandler(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam){
 	return appMain.MsgHandlerMain(hWnd, uiMsg, wParam, lParam);
 }
 
-void COpenGLWinApp::RegisterAppClass(HINSTANCE a_hInstance)
-{
+void COpenGLWinApp::RegisterAppClass(HINSTANCE a_hInstance){
 	WNDCLASSEX wcex;
 	memset(&wcex, 0, sizeof(WNDCLASSEX));
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -147,80 +94,47 @@ void COpenGLWinApp::RegisterAppClass(HINSTANCE a_hInstance)
 
 	RegisterClassEx(&wcex);
 }
-
 /*-----------------------------------------------
-
-Name:	CreateAppWindow
-
-Params:	sTitle - title of created window
-
-Result:	Creates main application window.
-
+Имя:		CreateAppWindow
+Параметры:	sTitle - заголовок окна
+Результат:	Создаёт главное окно приложения
 /*---------------------------------------------*/
-
-bool COpenGLWinApp::CreateAppWindow(string sTitle)
-{
+bool COpenGLWinApp::CreateAppWindow(string sTitle){
 	hWnd = CreateWindowEx(0, sAppName.c_str(), sTitle.c_str(), WS_OVERLAPPEDWINDOW | WS_MAXIMIZE | WS_CLIPCHILDREN,
 		0, 0, CW_USEDEFAULT, CW_USEDEFAULT, NULL,
 		NULL, hInstance, NULL);
-
 	if(!oglControl.InitOpenGL(hInstance, &hWnd, 3, 1, InitScene, RenderScene, NULL, &oglControl))return false;
-
 	ShowWindow(hWnd, SW_SHOW);
-
-	// Just to send WM_SIZE message again
 	ShowWindow(hWnd, SW_SHOWMAXIMIZED);
 	UpdateWindow(hWnd);
-
 	return true;
 }
-
 /*-----------------------------------------------
-
-Name:	AppBody
-
-Params:	none
-
-Result:	Main application body infinite loop.
-
+Имя:	AppBody
+Результат:	Главный цикл приложения
 /*---------------------------------------------*/
-
-void COpenGLWinApp::AppBody()
-{
+void COpenGLWinApp::AppBody(){
 	MSG msg;
-	while(1)
-	{
-		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			if(msg.message == WM_QUIT)break; // If the message was WM_QUIT then exit application
-			else
-			{
-				TranslateMessage(&msg); // Otherwise send message to appropriate window
+	while(1){
+		if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
+			if(msg.message == WM_QUIT)break; // если сообщение WM_QUIT выходим из приложения
+			else{
+				TranslateMessage(&msg); // разбираем приложение
 				DispatchMessage(&msg);
 			}
 		}
-		else if(bAppActive)
-		{
+		else if(bAppActive){
 			UpdateTimer();
 			oglControl.Render(&oglControl);
 		}
-		else Sleep(200); // Do not consume processor power if application isn't active
+		else Sleep(200); // Делаем задержку, чтобы не загружать процесса
 	}
 }
-
 /*-----------------------------------------------
-
-Name:	Shutdown
-
-Params:	none
-
-Result:	Shuts down application and releases used
-		memory.
-
+Имя:		Выключение
+Результат:	Выключает приложение и уничтожает сцену
 /*---------------------------------------------*/
-
-void COpenGLWinApp::Shutdown()
-{
+void COpenGLWinApp::Shutdown(){
 	oglControl.ReleaseOpenGLControl(&oglControl);
 
 	DestroyWindow(hWnd);
@@ -228,36 +142,23 @@ void COpenGLWinApp::Shutdown()
 	COpenGLControl::UnregisterSimpleOpenGLClass(hInstance);
 	ReleaseMutex(hMutex);
 }
-
 /*-----------------------------------------------
-
-Name:	MsgHandlerMain
-
-Params:	windows message stuff
-
-Result:	Application messages handler.
-
+Имя:		MsgHandlerMain
+Параметр:	Сообщение windows 
+Результат:	Обработчик сообщений windows
 /*---------------------------------------------*/
-
-LRESULT CALLBACK COpenGLWinApp::MsgHandlerMain(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK COpenGLWinApp::MsgHandlerMain(HWND hWnd, UINT uiMsg, WPARAM wParam, LPARAM lParam){
 	PAINTSTRUCT ps;
-
-	switch(uiMsg)
-	{
+	switch(uiMsg){
 		case WM_PAINT:
 			BeginPaint(hWnd, &ps);					
 			EndPaint(hWnd, &ps);
 			break;
-
 		case WM_CLOSE:
 			PostQuitMessage(0);
 			break;
-
-		case WM_ACTIVATE:
-		{
-			switch(LOWORD(wParam))
-			{
+		case WM_ACTIVATE:{
+			switch(LOWORD(wParam)){
 				case WA_ACTIVE:
 				case WA_CLICKACTIVE:
 					bAppActive = true;
@@ -268,44 +169,26 @@ LRESULT CALLBACK COpenGLWinApp::MsgHandlerMain(HWND hWnd, UINT uiMsg, WPARAM wPa
 			}
 			break;
 		}
-
 		case WM_SIZE:
 			oglControl.ResizeOpenGLViewportFull();
 			break;
-
 		default:
 			return DefWindowProc(hWnd, uiMsg, wParam, lParam);
 	}
 	return 0;
 }
-
 /*-----------------------------------------------
-
-Name:	GetInstance
-
-Params:	none
-
-Result:	Returns application instance.
-
+Имя:	GetInstance
+Результат:	Возвращает контекст приложения
 /*---------------------------------------------*/
-
-HINSTANCE COpenGLWinApp::GetInstance()
-{
+HINSTANCE COpenGLWinApp::GetInstance(){
 	return hInstance;
 }
-
 /*-----------------------------------------------
-
-Name:	WinMain
-
-Params:	whatever
-
-Result:	Windows entry point for application.
-
+Имя:		WinMain
+Результат:	главная Windows  функция
 /*---------------------------------------------*/
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR sCmdLine, int iShow)
-{
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR sCmdLine, int iShow){
 	if(!appMain.InitializeApp("simple_opengl"))
 		return 0;
 	appMain.RegisterAppClass(hInstance);
